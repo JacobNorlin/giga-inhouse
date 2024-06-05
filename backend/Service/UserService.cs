@@ -108,4 +108,18 @@ public class UserService
     return user;
   }
 
+  public void UpdateUser(UserInfo userInfo)
+  {
+    _dbService.Execute(@"
+      UPDATE users
+      SET name = @Name, steamId = @SteamId
+      WHERE userId = @UserId
+    ", new
+    {
+      userInfo.Name,
+      userInfo.SteamId,
+      userInfo.UserId
+    });
+  }
+
 }

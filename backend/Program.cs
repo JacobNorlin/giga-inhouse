@@ -1,12 +1,10 @@
-using Microsoft.AspNetCore.Mvc.TagHelpers;
-
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 builder.Services.AddSingleton<DbService, DbService>();
 builder.Services.AddSingleton<CS2Service, CS2Service>();
 builder.Services.AddSingleton<UserService, UserService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -20,7 +18,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors(config => {
+    app.UseCors(config =>
+    {
         config.AllowAnyOrigin();
         config.AllowAnyHeader();
         config.AllowAnyMethod();
@@ -36,6 +35,8 @@ app.UseWhen(context =>
 {
     appBuilder.UseMiddleware<AuthenticationMiddleware>();
 });
+
+
 
 app.UseHttpsRedirection();
 

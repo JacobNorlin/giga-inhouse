@@ -23,7 +23,7 @@ public class UserController : ControllerBase
   [Route("[controller]/register")]
   public object Register([FromBody] CreateUser createUser)
   {
-    if (createUser.Password == null || createUser.UserId == null)
+    if (string.IsNullOrEmpty(createUser.Password) || string.IsNullOrEmpty(createUser.UserId))
     {
       return BadRequest(new Error("MissingArgument", "Missing credentials"));
     }
@@ -53,13 +53,13 @@ public class UserController : ControllerBase
 
     if (user == null)
     {
-      return BadRequest(new Error("NoSuchUser", "User does not exist"));
+      return Unauthorized(new Error("BadLogin", "Unable to verify username or password"));
     }
 
     var hasher = new PasswordHasher<string>();
     if (hasher.VerifyHashedPassword(login.UserId!, user.Password!, login.ProvidedPassword!) == PasswordVerificationResult.Failed)
     {
-      return Unauthorized();
+      return Unauthorized(new Error("BadLogin", "Unable to verify username or password"));
     }
 
     var sessionId = _userService.UpsertSession(login.UserId!);
@@ -86,8 +86,13 @@ public class UserController : ControllerBase
 
   [HttpGet()]
   [Route("[controller]")]
-  public object GetUser([FromHeader(Name = "Session-Token")] string sessionToken)
+  public object GetUser([FromHeader(Name = "Session-Token")] string? sessionToken)
   {
+    if (sessionToken == null)
+    {
+      return Unauthorized();
+    }
+
     var user = _userService.GetUserBySessionId(sessionToken);
 
     if (user == null)
@@ -96,8 +101,5 @@ public class UserController : ControllerBase
     }
 
     return Ok(user);
-
   }
-
-
 }

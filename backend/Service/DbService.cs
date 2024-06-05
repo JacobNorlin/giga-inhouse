@@ -60,6 +60,8 @@ public class DbService
         FOREIGN KEY(userId) REFERENCES users(userId)
       )
     ");
+
+
     _logger.LogInformation("Db tables initialized");
   }
 

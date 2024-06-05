@@ -1,19 +1,19 @@
 import React from "react";
 
-export type User = {
+export type UserInfo = {
   name: string;
   userId: string;
   steamId?: string;
 };
 
 type AuthContextState = {
-  user: User;
+  user: UserInfo;
 };
 
 export const AuthContext = React.createContext<AuthContextState | null>(null);
 
 type AuthContextProviderProps = React.PropsWithChildren<{
-  user: User;
+  user: UserInfo;
 }>;
 
 export function AuthContextProvider({
