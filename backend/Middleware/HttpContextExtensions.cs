@@ -11,5 +11,4 @@ public static class HttpContextExtensions
         var rawUser = context.Items["user"];
         return rawUser as UserInfo ?? throw new Exception("User not defined");
     }
-
 }

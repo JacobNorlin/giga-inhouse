@@ -5,47 +5,45 @@ using System.Diagnostics;
 public class CS2ServerProcess : IDisposable
 {
 
-  private string executablePath;
+  private string _executablePath;
 
-  private Process process = new Process();
-
-  private Guid id = System.Guid.NewGuid();
+  private Process _process = new Process();
 
 
   public CS2ServerProcess(
     string executablePath
   )
   {
-    this.executablePath = executablePath;
+    _executablePath = executablePath;
   }
 
   public void Dispose()
   {
-    this.process.Kill();
-    this.process.WaitForExit();
-    this.process.Dispose();
+    _process.Kill();
+    _process.WaitForExit();
+    _process.Dispose();
   }
 
   public void Start()
   {
-    this.process.StartInfo.FileName = this.executablePath;
-    this.process.StartInfo.CreateNoWindow = true;
-    this.process.StartInfo.ArgumentList.Add("-dedicated");
-    this.process.StartInfo.ArgumentList.Add("-map de_dust2");
+    _process.StartInfo.FileName = _executablePath;
+    _process.StartInfo.CreateNoWindow = true;
+    _process.StartInfo.ArgumentList.Add("-dedicated");
+    _process.StartInfo.ArgumentList.Add("-map de_dust2");
 
-    this.process.Start();
+    _process.Start();
   }
 
   public void Kill()
   {
-    this.Dispose();
+    Dispose();
   }
 
 
   public void SetMap(String mapName)
   {
-    this.process.StandardInput.WriteLine(mapName);
-    this.process.StandardInput.Flush();
+    _process.StandardInput.WriteLine(mapName);
+    _process.StandardInput.Flush();
   }
 
 

@@ -11,6 +11,8 @@ import {
   Text,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
+import { useGigaInhouseApi } from "@giga-inhouse/hooks/use-giga-inhouse-api";
+import { AxiosError } from "axios";
 
 type UserAlreadyExistsError = {
   type: "UserExists";
@@ -48,27 +50,27 @@ export function RegisterPage() {
   const [error, setError] = React.useState<RegistrationError | undefined>();
   const navigate = useNavigate();
 
-  const handleRegister = (event: React.FormEvent) => {
+  const api = useGigaInhouseApi();
+
+  const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    fetch("http://localhost:5104/User/register", {
-      method: "POST",
-      body: JSON.stringify({
-        userId: userName,
-        password: password,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then(async (res) => {
-      if (res.status !== 200) {
-        const error = (await res.json()) as RegistrationError;
-        setError(error);
-        return;
-      }
+    try {
+      await api.request({
+        url: "/User/register",
+        method: "POST",
+        data: {
+          userId: userName,
+          password: password,
+        },
+      });
 
       navigate("/login");
-    });
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data as RegistrationError);
+      }
+    }
   };
 
   return (

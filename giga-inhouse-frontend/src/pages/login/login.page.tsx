@@ -10,7 +10,8 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosHeaders } from "axios";
+import { useGigaInhouseApi } from "@giga-inhouse/hooks/use-giga-inhouse-api";
 
 type BadLoginError = {
   type: "BadLogin";
@@ -33,53 +34,48 @@ function getErrorTitle(error: LoginError) {
   return "Something went wrong";
 }
 
-function parseError(err: string): LoginError {
-  const parsed = JSON.parse(err);
-  return parsed as LoginError;
-}
-
 export function Login() {
   const [userName, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<LoginError | undefined>();
   const navigate = useNavigate();
+  const api = useGigaInhouseApi();
 
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    fetch("http://localhost:5104/User/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userName,
-        providedPassword: password,
-      }),
-    })
-      .then(async (res) => {
-        if (res.status !== 200) {
-          const error = (await res.json()) as LoginError;
-          setError(error);
-          return;
-        }
-        const sessionToken = res.headers.get("Session-Token");
-        if (!sessionToken) {
+    try {
+      const res = await api.request({
+        url: "/User/login",
+        method: "POST",
+        data: {
+          userId: userName,
+          providedPassword: password,
+        },
+      });
+
+      if (res.headers instanceof AxiosHeaders) {
+        const sessionToken = res.headers.get("Session-Token")?.toString();
+        if (sessionToken) {
+          localStorage.setItem("session-token", sessionToken);
+          navigate("/");
+        } else {
           setError({
             type: "Unknown",
-            description: "Could not find token",
+            description: "No session token",
           });
-          return;
         }
-        localStorage.setItem("session-token", sessionToken);
-
-        navigate("/");
-      })
-      .catch((err: AxiosError) => {
+      } else {
         setError({
           type: "Unknown",
-          description: err.message,
+          description: "No session token",
         });
-      });
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        const error = err.response?.data as LoginError;
+        setError(error);
+      }
+    }
   };
 
   return (
