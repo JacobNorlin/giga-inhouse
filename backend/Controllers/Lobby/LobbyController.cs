@@ -32,6 +32,12 @@ public class LobbyController : ControllerBase
   public IActionResult JoinLobby([FromQuery] string lobbyId)
   {
     var user = HttpContext.GetUser();
+
+    if (user.SteamId == null)
+    {
+      return BadRequest(new Error("NoSteamId", "Must set steam id to join lobby"));
+    }
+
     var success = _lobbyService.JoinLobby(lobbyId, user);
 
     if (!success)

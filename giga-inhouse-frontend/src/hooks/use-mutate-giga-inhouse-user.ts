@@ -6,13 +6,13 @@ type MutateUserOptions = {
   steamId?: string;
 };
 
-export function useGigaInhouseMutateUser() {
+export function useMutateGigaInhouseUser() {
   const api = useGigaInhouseApi();
   const queryClient = useQueryClient();
 
   const mutateUser = useMutation({
     mutationFn: async ({ userName, steamId }: MutateUserOptions) => {
-      api.request({
+      await api.request({
         method: "POST",
         url: "/Profile",
         data: {
@@ -21,7 +21,7 @@ export function useGigaInhouseMutateUser() {
         },
       });
     },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["giga-inhouse", "user"] });
     },
   });

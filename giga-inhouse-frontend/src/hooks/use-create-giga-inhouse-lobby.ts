@@ -1,9 +1,11 @@
 import { useGigaInhouseApi } from "@giga-inhouse/hooks/use-giga-inhouse-api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
 export function useCreateGigaInhouseLobby() {
   const queryClient = useQueryClient();
   const api = useGigaInhouseApi();
+  const navigate = useNavigate();
 
   const createLobby = useMutation({
     mutationFn: async () => {
@@ -34,6 +36,7 @@ export function useCreateGigaInhouseLobby() {
       }
 
       queryClient.invalidateQueries({ queryKey: ["giga-inhouse", "lobbies"] });
+      navigate(`/lobby/${lobbyId}`);
     },
   });
 

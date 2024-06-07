@@ -42,11 +42,7 @@ public class ProfileController : ControllerBase
   public IActionResult GetUser()
   {
     var user = HttpContext.GetUser();
-    return Ok(new
-    {
-      UserId = user.UserId,
-      Name = user.Name
-    });
+    return Ok(user);
   }
 
 }

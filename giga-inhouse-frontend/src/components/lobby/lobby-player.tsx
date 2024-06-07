@@ -19,7 +19,7 @@ export function LobbyPlayer({ user }: LobbyPlayerProps) {
         inlineSize: "100%",
       }}
     >
-      <Text size="sm">{user.userName}</Text>
+      <Text size="sm">{user.userName ?? user.userId}</Text>
     </Box>
   );
 }

@@ -18,7 +18,7 @@ export function useGigaInhouseUser() {
       return res.data;
     },
     retryOnMount: true,
-    retry: false,
+    placeholderData: undefined,
   });
 
   const queryError = userQuery.error as AxiosError;

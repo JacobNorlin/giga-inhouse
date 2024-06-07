@@ -1,5 +1,5 @@
 import { useAuthContext } from "@giga-inhouse/components/auth-wrapper/use-auth-context";
-import { useGigaInhouseMutateUser } from "@giga-inhouse/hooks/use-giga-inhouse-mutate-user";
+import { useMutateGigaInhouseUser } from "@giga-inhouse/hooks/use-mutate-giga-inhouse-user";
 import {
   ActionIcon,
   Button,
@@ -24,7 +24,7 @@ export function ProfilePage() {
     },
   });
 
-  const mutateUser = useGigaInhouseMutateUser();
+  const mutateUser = useMutateGigaInhouseUser();
 
   return (
     <Stack gap="sm">
