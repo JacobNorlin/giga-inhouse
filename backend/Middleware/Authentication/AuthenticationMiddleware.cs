@@ -1,3 +1,8 @@
+// Middleware to manage validation session claims and amending requests
+// with user info
+
+using System.Security.Claims;
+
 public class AuthenticationMiddleware
 {
   private UserService _userService;
@@ -13,24 +18,20 @@ public class AuthenticationMiddleware
 
   public async Task InvokeAsync(HttpContext context)
   {
-    if (!context.Request.Headers.TryGetValue("Session-Token", out var token))
+
+    // I think the framework already validates the session cookie
+    // so not entirely sure this is necessary :^)
+    var sessionToken = context.User.FindFirstValue(ClaimTypes.Authentication);
+
+    if (sessionToken == null)
     {
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-      await context.Response.WriteAsync("Missing session token");
+      await context.Response.WriteAsync("No session");
       return;
     }
 
-    if (token == "giga-admin")
-    {
-      context.SetUser(new UserInfo
-      {
-        UserId = "giga-admin",
-      });
-      await _next(context);
-      return;
-    }
 
-    var user = _userService.GetUserBySessionId(token!);
+    var user = _userService.GetUserBySessionId(sessionToken);
     if (user == null)
     {
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;

@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Dapper;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.Data.Sqlite;
 
 public class DbService
@@ -49,17 +50,6 @@ public class DbService
       )
       ");
 
-
-    // Create sessions table
-    Execute(@"
-      CREATE TABLE IF NOT EXISTS sessions(
-        userId varchar NOT NULL,
-        sessionId varchar NOT NULL,
-
-        PRIMARY KEY(sessionId)
-        FOREIGN KEY(userId) REFERENCES users(userId)
-      )
-    ");
 
 
     _logger.LogInformation("Db tables initialized");

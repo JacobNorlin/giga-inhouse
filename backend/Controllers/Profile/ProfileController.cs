@@ -1,5 +1,8 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [ApiController]
 public class ProfileController : ControllerBase
 {
@@ -32,6 +35,18 @@ public class ProfileController : ControllerBase
     _userService.UpdateUser(updateInfo);
 
     return Ok();
+  }
+
+  [HttpGet()]
+  [Route("[controller]")]
+  public IActionResult GetUser()
+  {
+    var user = HttpContext.GetUser();
+    return Ok(new
+    {
+      UserId = user.UserId,
+      Name = user.Name
+    });
   }
 
 }

@@ -11,6 +11,7 @@ import { Login } from "@giga-inhouse/pages/login/login.page";
 import { LobbyPage } from "@giga-inhouse/pages/lobby/lobby.page";
 import "@mantine/core/styles.css";
 import { ProfilePage } from "@giga-inhouse/pages/profile/profile.page";
+import { LobbyListPage } from "@giga-inhouse/pages/lobby-list/lobby-list.page";
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,11 @@ const router = createBrowserRouter([
     element: <AppRoot />,
     children: [
       {
-        path: "lobby",
+        path: "lobbies",
+        element: <LobbyListPage />,
+      },
+      {
+        path: "lobby/:lobbyId",
         element: <LobbyPage />,
       },
       {

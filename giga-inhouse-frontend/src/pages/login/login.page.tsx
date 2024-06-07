@@ -44,7 +44,7 @@ export function Login() {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const res = await api.request({
+      await api.request({
         url: "/User/login",
         method: "POST",
         data: {
@@ -52,24 +52,7 @@ export function Login() {
           providedPassword: password,
         },
       });
-
-      if (res.headers instanceof AxiosHeaders) {
-        const sessionToken = res.headers.get("Session-Token")?.toString();
-        if (sessionToken) {
-          localStorage.setItem("session-token", sessionToken);
-          navigate("/");
-        } else {
-          setError({
-            type: "Unknown",
-            description: "No session token",
-          });
-        }
-      } else {
-        setError({
-          type: "Unknown",
-          description: "No session token",
-        });
-      }
+      navigate("/");
     } catch (err) {
       if (err instanceof AxiosError) {
         const error = err.response?.data as LoginError;

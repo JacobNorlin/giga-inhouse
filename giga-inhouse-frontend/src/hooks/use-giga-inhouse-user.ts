@@ -11,7 +11,7 @@ export function useGigaInhouseUser() {
     queryKey: ["giga-inhouse", "user"],
     queryFn: async () => {
       const res = await api.request({
-        url: "/User",
+        url: "/Profile",
         method: "GET",
       });
 

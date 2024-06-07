@@ -7,83 +7,74 @@ using Microsoft.AspNetCore.Mvc;
 public class LobbyController : ControllerBase
 {
 
-  private static readonly Lobby _lobby = new Lobby();
 
   private readonly ILogger<LobbyController> _logger;
-  private readonly CS2Service _cs2Service;
+  private readonly LobbyService _lobbyService;
 
-  private static Task _lobbyCuller = _CullLobby();
-
-  public LobbyController(ILogger<LobbyController> logger, CS2Service cs2Service)
+  public LobbyController(ILogger<LobbyController> logger, LobbyService lobbyService)
   {
     _logger = logger;
-    _cs2Service = cs2Service;
+    _lobbyService = lobbyService;
   }
 
 
+  [HttpPost()]
+  [Route("[controller]/Create")]
+  public IActionResult CreateLobby()
+  {
+    var lobbyId = _lobbyService.CreateLobby();
+
+    return Ok(lobbyId);
+  }
+
+  [HttpPost()]
+  [Route("[controller]/Join")]
+  public IActionResult JoinLobby([FromQuery] string lobbyId)
+  {
+    var user = HttpContext.GetUser();
+    var success = _lobbyService.JoinLobby(lobbyId, user);
+
+    if (!success)
+    {
+      return BadRequest(new Error("NoSuchLobby", $"Lobby with id {lobbyId} does not exist"));
+    }
+
+    return Ok();
+  }
 
   [HttpGet()]
   [Route("[controller]")]
-
-  public object GetLobby()
+  public IActionResult GetLobby([FromQuery] string lobbyId)
   {
+    var lobby = _lobbyService.GetLobby(lobbyId);
+
+    if (lobby == null)
+    {
+      return BadRequest(new Error("NoSuchLobby", $"Lobby with id {lobbyId} does not exist"));
+    }
     var user = HttpContext.GetUser();
+    _lobbyService.RefreshUser(lobbyId, user);
 
-    if (user.UserId == "giga-admin")
-    {
-      return Ok(_lobby);
-    }
-
-    if (user.SteamId == null)
-    {
-      return BadRequest(new Error("NoSteamId", "Must have Steam ID configured to join lobby"));
-    }
-    var lobbyUser = new LobbyUser
-    {
-      UserId = user.UserId,
-      SteamId = user.SteamId,
-      Team = CSTeam.T,
-      UserName = user.Name,
-      LastUpdateTime = DateTime.UtcNow
-    };
-    //TODO: Add some kind of timer to remove user
-    _lobby.AddUser(lobbyUser);
-
-    return Ok(_lobby);
-  }
-
-  private static async Task _CullLobby()
-  {
-    using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-    while (true)
-    {
-
-      var now = DateTime.UtcNow;
-      _lobby.Users = _lobby.Users.Where(user =>
-      {
-        var secondsSinceLastUpdate = (now - user.LastUpdateTime).TotalSeconds;
-        return secondsSinceLastUpdate < 10;
-      }).ToList();
-
-      await timer.WaitForNextTickAsync();
-    }
+    return Ok(lobby);
   }
 
   [HttpGet()]
-  [Route("[controller]/start")]
-  public object StartLobby()
+  [Route("[controller]/List")]
+  public IActionResult GetLobbies()
   {
-
-    if (_lobby.IsStarted)
-    {
-      return BadRequest(new Error("LobbyStarted", "Lobby already started"));
-    }
-
-    _logger.LogInformation("Starting lobby");
-    _lobby.IsStarted = true;
-
-    _cs2Service.StartGame();
-
+    return Ok(_lobbyService.GetLobbies());
   }
 
+  [HttpPost()]
+  [Route("[controller]/Start")]
+  public IActionResult StartLobby([FromQuery] string lobbyId)
+  {
+    var success = _lobbyService.StartLobby(lobbyId);
+    if (!success)
+    {
+      return BadRequest(new Error("NoSuchLobby", $"Lobby with id {lobbyId} does not exist"));
+    }
+
+    return Ok();
+  }
 }

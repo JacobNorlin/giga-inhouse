@@ -1,9 +1,12 @@
+using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
-
 
 [ApiController]
 public class UserController : ControllerBase
@@ -47,7 +50,7 @@ public class UserController : ControllerBase
 
   [HttpPost()]
   [Route("[controller]/login")]
-  public object Login([FromBody()] LoginUser login)
+  public async Task<object> Login([FromBody()] LoginUser login)
   {
     var user = _userService.GetUser(login.UserId!);
 
@@ -64,8 +67,13 @@ public class UserController : ControllerBase
 
     var sessionId = _userService.UpsertSession(login.UserId!);
 
-    HttpContext.Response.Headers.Append("session-token", sessionId);
-    HttpContext.Response.Headers.Append("Access-Control-Expose-Headers", "Session-Token");
+
+    var claims = new List<Claim>{
+      new Claim(ClaimTypes.Name, user.UserId),
+      new Claim(ClaimTypes.Authentication, sessionId)
+    };
+    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
     return Ok();
   }
@@ -82,24 +90,5 @@ public class UserController : ControllerBase
     }
 
     return Ok();
-  }
-
-  [HttpGet()]
-  [Route("[controller]")]
-  public object GetUser([FromHeader(Name = "Session-Token")] string? sessionToken)
-  {
-    if (sessionToken == null)
-    {
-      return Unauthorized();
-    }
-
-    var user = _userService.GetUserBySessionId(sessionToken);
-
-    if (user == null)
-    {
-      return Unauthorized();
-    }
-
-    return Ok(user);
   }
 }
