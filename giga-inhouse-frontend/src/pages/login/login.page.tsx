@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from "@mantine/core";
-import { AxiosError, AxiosHeaders } from "axios";
+import { AxiosError } from "axios";
 import { useGigaInhouseApi } from "@giga-inhouse/hooks/use-giga-inhouse-api";
 
 type BadLoginError = {

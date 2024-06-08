@@ -1,4 +1,3 @@
-import { useAuthContext } from "@giga-inhouse/components/auth-wrapper/use-auth-context";
 import { useGigaInhouseApi } from "@giga-inhouse/hooks/use-giga-inhouse-api";
 import { LobbyUser } from "@giga-inhouse/hooks/use-giga-inhouse-lobby";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +23,7 @@ export function useGigaInhouseVoting(lobbyId: string | undefined) {
   const api = useGigaInhouseApi();
 
   const votingQuery = useQuery({
-    queryKey: ["giga-inhouse", "voting", "lobbyId"],
+    queryKey: ["giga-inhouse", "voting", lobbyId],
     queryFn: async () => {
       const res = await api.request<MapVoting>({
         url: "/Lobby/Vote",

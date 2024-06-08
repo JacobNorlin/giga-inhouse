@@ -5,7 +5,7 @@ import {
   useGigaInhouseVoting,
 } from "@giga-inhouse/hooks/voting/use-giga-inhouse-map-voting";
 import { useMutateGigaInhouseVoting } from "@giga-inhouse/hooks/voting/use-mutate-gigainhouse-map-voting";
-import { Card, Flex, Group, Stack, Text } from "@mantine/core";
+import { Card, Flex, Stack, Text } from "@mantine/core";
 
 type MapVotingProps = {
   lobbyId: string;

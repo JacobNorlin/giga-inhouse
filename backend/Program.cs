@@ -18,7 +18,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         {
             Name = "session-token",
             SecurePolicy = CookieSecurePolicy.Always,
-            SameSite = SameSiteMode.None
+            SameSite = SameSiteMode.Strict
         };
 
 
@@ -46,22 +46,40 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseRouting();
 
-// app.UseHttpsRedirection();
-
+// This has to be configured before the auth middleware for it to have
+// access to claims from the session cookie
 app.UseAuthentication();
-app.UseAuthorization();
 
+// Handle multiple slashes in the path
+app.Use((context, next) =>
+    {
+        if (context.Request.Path.Value.StartsWith("//"))
+        {
+            context.Request.Path = new PathString(context.Request.Path.Value.Replace("//", "/"));
+        }
+        return next();
+    });
 // Register middleware for session token validation
 app.UseWhen(context =>
 {
     var path = context.Request.Path.Value;
+    Console.WriteLine(path);
     return !path!.StartsWith("/User");
 }, appBuilder =>
 {
     appBuilder.UseMiddleware<AuthenticationMiddleware>();
 });
 
+
+if (app.Environment.IsProduction())
+{
+    app.UsePathBase("/api");
+}
+
+// This needs to handled after the path base _i think_ otherwise things don't work
+app.UseAuthorization();
 
 
 app.MapControllers();

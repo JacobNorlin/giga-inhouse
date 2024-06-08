@@ -2,7 +2,6 @@ using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +23,7 @@ public class UserController : ControllerBase
 
   [HttpPost()]
   [Route("[controller]/register")]
-  public object Register([FromBody] CreateUser createUser)
+  public IActionResult Register([FromBody] CreateUser createUser)
   {
     if (string.IsNullOrEmpty(createUser.Password) || string.IsNullOrEmpty(createUser.UserId))
     {
@@ -50,7 +49,7 @@ public class UserController : ControllerBase
 
   [HttpPost()]
   [Route("[controller]/login")]
-  public async Task<object> Login([FromBody()] LoginUser login)
+  public async Task<IActionResult> Login([FromBody()] LoginUser login)
   {
     var user = _userService.GetUser(login.UserId!);
 

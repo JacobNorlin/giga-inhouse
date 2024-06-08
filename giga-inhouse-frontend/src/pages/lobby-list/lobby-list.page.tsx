@@ -6,10 +6,8 @@ import {
   Button,
   Container,
   Flex,
-  Grid,
-  List,
-  Stack,
-  Text,
+  Grid, Stack,
+  Text
 } from "@mantine/core";
 
 export function LobbyListPage() {

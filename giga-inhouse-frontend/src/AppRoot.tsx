@@ -1,7 +1,7 @@
 import { AuthWrapper } from "@giga-inhouse/components/auth-wrapper/auth-wrapper";
 import { Header } from "@giga-inhouse/components/header/header";
 import { NavBar } from "@giga-inhouse/components/navbar/navbar";
-import { AppShell, Burger, Text } from "@mantine/core";
+import { AppShell, Burger } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Outlet } from "react-router-dom";
 

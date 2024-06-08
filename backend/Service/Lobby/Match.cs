@@ -68,12 +68,12 @@ public class Match
     var voteUserId = vote.User.UserId;
 
     // Remove vote if user is voting on the same map
-    int voteIdx = _votes.FindIndex(v => v.User.UserId == vote.User.UserId);
+    int voteIdx = _votes.FindIndex(v => v.User.UserId == vote.User.UserId && v.MapName == vote.MapName);
     if (voteIdx != -1)
     {
       _votes.RemoveAt(voteIdx);
       _votesPerUser[vote.User.UserId] = _votesPerUser[vote.User.UserId] + 1;
-      
+
       return;
     }
 
@@ -90,6 +90,7 @@ public class Match
 
   private void _ResolvingVotingRound()
   {
+    // Get list of most top N voted maps
     List<string> mapsToBan = _votes.GroupBy(v => v.MapName)
       .Select(group =>
       {
@@ -108,10 +109,11 @@ public class Match
     _bannedMaps.AddRange(mapsToBan);
   }
 
-  private void _SetVotesPerUser(int numVotes)
+  private void _SetVotesPerUser(int numVotes, int team)
   {
+    var teamUsers = team == 0 ? T : CT;
     _votesPerUser = new Dictionary<string, int>();
-    foreach (var user in Users)
+    foreach (var user in teamUsers)
     {
       _votesPerUser.Add(user.UserId, numVotes);
     }
@@ -122,17 +124,14 @@ public class Match
     // Maybe this works, maybe it's a giant mess of race conditions :^)
     var msPerVoteRound = 2000000;
 
-
-
-    // Wait for first voting round
-    _SetVotesPerUser(1);
+    _SetVotesPerUser(1, 0);
     Console.WriteLine("Voting first round");
     await Task.Delay(msPerVoteRound);
     Console.WriteLine("Voting second round");
     _ResolvingVotingRound();
-    _SetVotesPerUser(1);
+    _SetVotesPerUser(1, 1);
     await Task.Delay(msPerVoteRound);
-    _SetVotesPerUser(1);
+    _SetVotesPerUser(1, 0);
     Console.WriteLine("Voting third round");
     _ResolvingVotingRound();
     await Task.Delay(msPerVoteRound);

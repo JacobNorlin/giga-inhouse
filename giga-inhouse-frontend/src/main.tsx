@@ -13,40 +13,45 @@ import "@mantine/core/styles.css";
 import { ProfilePage } from "@giga-inhouse/pages/profile/profile.page";
 import { LobbyListPage } from "@giga-inhouse/pages/lobby-list/lobby-list.page";
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <AppRoot />,
+      children: [
+        {
+          path: "lobbies",
+          element: <LobbyListPage />,
+        },
+        {
+          path: "lobby/:lobbyId",
+          element: <LobbyPage />,
+        },
+        {
+          path: "profile",
+          element: <ProfilePage />,
+        },
+      ],
+    },
+    {
+      path: "/login",
+      element: <NonAuthAppRoot />,
+      children: [
+        {
+          index: true,
+          element: <Login />,
+        },
+        {
+          path: "register",
+          element: <RegisterPage />,
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    element: <AppRoot />,
-    children: [
-      {
-        path: "lobbies",
-        element: <LobbyListPage />,
-      },
-      {
-        path: "lobby/:lobbyId",
-        element: <LobbyPage />,
-      },
-      {
-        path: "profile",
-        element: <ProfilePage />,
-      },
-    ],
-  },
-  {
-    path: "/login",
-    element: <NonAuthAppRoot />,
-    children: [
-      {
-        index: true,
-        element: <Login />,
-      },
-      {
-        path: "register",
-        element: <RegisterPage />,
-      },
-    ],
-  },
-]);
+    basename: "/inhouse",
+  }
+);
 
 const queryClient = new QueryClient();
 

@@ -51,6 +51,17 @@ public class DbService
       ");
 
 
+    // Create sessions table
+    Execute(@"
+      CREATE TABLE IF NOT EXISTS sessions(
+        userId varchar NOT NULL,
+        sessionId varchar NOT NULL,
+
+        PRIMARY KEY(sessionId)
+        FOREIGN KEY(userId) REFERENCES users(userId)
+      )
+    ");
+
 
     _logger.LogInformation("Db tables initialized");
   }

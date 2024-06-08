@@ -19,8 +19,6 @@ public class AuthenticationMiddleware
   public async Task InvokeAsync(HttpContext context)
   {
 
-    // I think the framework already validates the session cookie
-    // so not entirely sure this is necessary :^)
     var sessionToken = context.User.FindFirstValue(ClaimTypes.Authentication);
 
     if (string.IsNullOrEmpty(sessionToken))

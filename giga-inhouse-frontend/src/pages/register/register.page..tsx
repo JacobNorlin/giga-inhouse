@@ -1,14 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router";
 import {
-  Alert,
-  Anchor,
-  Button,
+  Alert, Button,
   Center,
   Input,
   InputLabel,
   Stack,
-  Text,
+  Text
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { useGigaInhouseApi } from "@giga-inhouse/hooks/use-giga-inhouse-api";
