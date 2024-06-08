@@ -83,4 +83,37 @@ public class LobbyController : ControllerBase
 
     return Ok();
   }
+
+  [HttpGet()]
+  [Route("[controller]/Vote")]
+  public IActionResult GetVoting([FromQuery] string lobbyId)
+  {
+    var mapVoting = _lobbyService.GetMapVoting(lobbyId);
+
+    if (mapVoting == null)
+    {
+      return BadRequest();
+    }
+
+    return Ok(mapVoting);
+  }
+
+  [HttpPost()]
+  [Route("[controller]/Vote")]
+  public IActionResult GetVoting([FromQuery] string lobbyId, [FromQuery] string mapName)
+  {
+
+    var userInfo = HttpContext.GetUser();
+    var lobbyUser = _lobbyService.GetLobbyUser(lobbyId, userInfo.UserId);
+
+    if (lobbyUser == null)
+    {
+      return BadRequest(new Error("UserNotInLobby", "User is not in this lobby"));
+    }
+
+    _lobbyService.AddVote(lobbyId, mapName, lobbyUser);
+
+    return Ok();
+
+  }
 }

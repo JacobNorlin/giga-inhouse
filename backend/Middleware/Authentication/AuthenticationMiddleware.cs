@@ -23,7 +23,7 @@ public class AuthenticationMiddleware
     // so not entirely sure this is necessary :^)
     var sessionToken = context.User.FindFirstValue(ClaimTypes.Authentication);
 
-    if (sessionToken == null)
+    if (string.IsNullOrEmpty(sessionToken))
     {
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
       await context.Response.WriteAsync("No session");

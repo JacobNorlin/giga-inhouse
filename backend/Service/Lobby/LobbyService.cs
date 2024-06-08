@@ -1,83 +1,6 @@
 
 
 
-public class Lobby : IDisposable
-{
-  public required string LobbyId { get; set; }
-  public required bool Started { get; set; } = false;
-  public List<LobbyUser> Users { get; set; } = new List<LobbyUser>();
-
-
-  private Task _cullTask;
-
-  public Lobby()
-  {
-    _cullTask = _CullInactiveUsers();
-  }
-
-
-  public void UpsertUser(LobbyUser user)
-  {
-    var userIdx = Users.FindIndex(user =>
-    {
-      return user.UserId == user.UserId;
-    });
-
-    if (userIdx != -1)
-    {
-      Users[userIdx] = user;
-    }
-    else
-    {
-      Users.Add(user);
-
-    }
-  }
-
-  public void RefreshUser(LobbyUser userUpdate)
-  {
-    var userIdx = Users.FindIndex(user =>
-    {
-      return user.UserId == user.UserId;
-    });
-
-    if (userIdx != -1)
-    {
-      Users[userIdx] = userUpdate;
-    }
-  }
-
-  private async Task _CullInactiveUsers()
-  {
-    using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-    while (true)
-    {
-
-      var now = DateTime.UtcNow;
-      Users = Users.Where(user =>
-      {
-        var secondsSinceLastUpdate = (now - user.LastUpdate).TotalSeconds;
-        return secondsSinceLastUpdate < 10;
-      }).ToList();
-
-      await timer.WaitForNextTickAsync();
-    }
-  }
-
-  public void Dispose()
-  {
-    _cullTask.Dispose();
-  }
-}
-
-public class LobbyUser
-{
-  public required string UserId { get; set; }
-  public required string SteamId { get; set; }
-  public required DateTime LastUpdate { get; set; }
-}
-
-
 public class LobbyService
 {
   private readonly ILogger<LobbyService> _logger;
@@ -154,8 +77,7 @@ public class LobbyService
       return false;
     }
 
-    lobby.Started = true;
-
+    lobby.StartLobby();
 
     return true;
   }
@@ -163,6 +85,66 @@ public class LobbyService
   public IEnumerable<Lobby> GetLobbies()
   {
     return _lobbies.Values;
+  }
+
+  public MapVoting? GetMapVoting(string lobbyId)
+  {
+    if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+    {
+      _logger.LogInformation($"No lobby with id {lobbyId}");
+      return null;
+    }
+
+    if (!lobby.Started)
+    {
+
+      _logger.LogInformation($"Lobby {lobbyId} not started");
+      return null;
+    }
+
+    var match = lobby.LobbyMatch;
+    if (match == null)
+    {
+      _logger.LogCritical($"Lobby {lobbyId} started but no match");
+      return null;
+    }
+
+    return match.GetMapVotingState();
+  }
+
+  public void AddVote(string lobbyId, string mapName, LobbyUser user)
+  {
+    if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+    {
+      _logger.LogInformation($"No lobby with id {lobbyId}");
+      return;
+    }
+
+    if (lobby.LobbyMatch == null)
+    {
+      _logger.LogCritical($"Lobby {lobbyId} started but no match");
+      return;
+    }
+
+    var mapVote = new MapVote
+    {
+      MapName = mapName,
+      User = user
+    };
+
+    lobby.LobbyMatch.AddVote(mapVote);
+
+  }
+
+  public LobbyUser? GetLobbyUser(string lobbyId, string userId)
+  {
+    if (!_lobbies.TryGetValue(lobbyId, out var lobby))
+    {
+      _logger.LogInformation($"No lobby with id {lobbyId}");
+      return null;
+    }
+
+    return lobby.GetLobbyUser(userId);
   }
 
 }
