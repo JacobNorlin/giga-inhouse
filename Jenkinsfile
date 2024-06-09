@@ -8,28 +8,20 @@ pipeline {
     }
 
     stages {
-        stage('Install Dependencies') {
+        stage('Build frontend') {
+            agent {
+              docker {
+                image 'node:22-alpine3.19'
+              }
+            }
             steps {
                 sh 'npm install'
-            }
-        }
-
-        stage('Build Project') {
-            steps {
                 sh 'npm run build'
-            }
-        }
 
-        stage('Build Docker Image') {
-            steps {
                 script {
                     docker.build('giga-inhouse-frontend:latest', './giga-inhouse-frontend/Dockerfile')
                 }
-            }
-        }
 
-        stage('Deploy to Docker') {
-            steps {
                 script {
                     // Run the Docker container
                     docker.withRegistry('', 'docker-credentials-id') {
