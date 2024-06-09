@@ -34,12 +34,11 @@ pipeline {
                     // Run the Docker container
                     docker.withRegistry('', 'docker-credentials-id') {
                         // Stop and remove existing container if it exists
-                        sh """
-                        if [ $(docker ps -q -f name=giga-inhouse-frontend) ]; then
-                            docker stop giga-inhouse-frontend
-                            docker rm giga-inhouse-frontend
-                        fi
-                        """
+                        def containerExists = sh(script: "docker ps -q -f name=giga-inhouse-frontend", returnStdout: true).trim()
+                        if (containerExists) {
+                            sh "docker stop giga-inhouse-frontend"
+                            sh "docker rm giga-inhouse-frontend"
+                        }
                         // Run a new container with the built image
                         sh 'docker run -d --name giga-inhouse-frontend -p 5001:80 giga-inhouse-frontend:latest'
                     }
